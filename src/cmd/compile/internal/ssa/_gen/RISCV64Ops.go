@@ -114,6 +114,7 @@ func init() {
 
 	regCtxt := regNamed["X26"]
 	callerSave := gpMask | fpMask | regNamed["g"]
+	regALR := regNamed["X5"]
 
 	var (
 		gpstore  = regInfo{inputs: []regMask{gpspsbMask, gpspMask, 0}} // SB in first input so we can load from a global, but not in second to avoid using SB as a temporary register
@@ -138,8 +139,8 @@ func init() {
 		fp2gp   = regInfo{inputs: []regMask{fpMask, fpMask}, outputs: []regMask{gpMask}}
 
 		call        = regInfo{clobbers: callerSave}
-		callClosure = regInfo{inputs: []regMask{gpspMask, regCtxt, 0}, clobbers: callerSave}
-		callInter   = regInfo{inputs: []regMask{gpMask}, clobbers: callerSave}
+		callClosure = regInfo{inputs: []regMask{gpspMask &^ regALR, regCtxt, 0}, clobbers: callerSave}
+		callInter   = regInfo{inputs: []regMask{gpMask &^ regALR}, clobbers: callerSave}
 	)
 
 	RISCV64ops := []opData{

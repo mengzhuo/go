@@ -24,14 +24,14 @@ TEXT runtime·rt0_go(SB),NOSPLIT|TOPFRAME,$0
 	MOV	X2, (g_stack+stack_hi)(g)
 
 	// if there is a _cgo_init, call it using the gcc ABI.
-	MOV	_cgo_init(SB), T0
-	BEQ	T0, ZERO, nocgo
+	MOV	_cgo_init(SB), T1
+	BEQ	T1, ZERO, nocgo
 
 	MOV	ZERO, A3		// arg 3: not used
 	MOV	ZERO, A2		// arg 2: not used
 	MOV	$setg_gcc<>(SB), A1	// arg 1: setg
 	MOV	g, A0			// arg 0: G
-	JALR	RA, T0
+	JALR	RA, T1
 
 nocgo:
 	// update stackguard after _cgo_init
@@ -189,7 +189,7 @@ TEXT runtime·morestack(SB),NOSPLIT|NOFRAME,$0-0
 	// Called from f.
 	// Set g->sched to context in f.
 	MOV	X2, (g_sched+gobuf_sp)(g)
-	MOV	T0, (g_sched+gobuf_pc)(g)
+	MOV	T1, (g_sched+gobuf_pc)(g)
 	MOV	RA, (g_sched+gobuf_lr)(g)
 	MOV	CTXT, (g_sched+gobuf_ctxt)(g)
 
@@ -256,8 +256,8 @@ TEXT runtime·return0(SB), NOSPLIT, $0
 
 // func gogo(buf *gobuf)
 TEXT runtime·gogo(SB), NOSPLIT|NOFRAME, $0-8
-	MOV	buf+0(FP), T0
-	MOV	gobuf_g(T0), T1
+	MOV	buf+0(FP), T2
+	MOV	gobuf_g(T2), T1
 	MOV	0(T1), ZERO // make sure g != nil
 	JMP	gogo<>(SB)
 
@@ -265,16 +265,16 @@ TEXT gogo<>(SB), NOSPLIT|NOFRAME, $0
 	MOV	T1, g
 	CALL	runtime·save_g(SB)
 
-	MOV	gobuf_sp(T0), X2
-	MOV	gobuf_lr(T0), RA
-	MOV	gobuf_ret(T0), A0
-	MOV	gobuf_ctxt(T0), CTXT
-	MOV	ZERO, gobuf_sp(T0)
-	MOV	ZERO, gobuf_ret(T0)
-	MOV	ZERO, gobuf_lr(T0)
-	MOV	ZERO, gobuf_ctxt(T0)
-	MOV	gobuf_pc(T0), T0
-	JALR	ZERO, T0
+	MOV	gobuf_sp(T2), X2
+	MOV	gobuf_lr(T2), RA
+	MOV	gobuf_ret(T2), A0
+	MOV	gobuf_ctxt(T2), CTXT
+	MOV	ZERO, gobuf_sp(T2)
+	MOV	ZERO, gobuf_ret(T2)
+	MOV	ZERO, gobuf_lr(T2)
+	MOV	ZERO, gobuf_ctxt(T2)
+	MOV	gobuf_pc(T2), T2
+	JALR	ZERO, T2
 
 // func procyield(cycles uint32)
 TEXT runtime·procyield(SB),NOSPLIT,$0-0

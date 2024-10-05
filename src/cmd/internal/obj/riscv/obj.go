@@ -820,7 +820,7 @@ func stacksplit(ctxt *obj.Link, p *obj.Prog, cursym *obj.LSym, newprog obj.ProgA
 		p.To.Type = obj.TYPE_BRANCH
 		// See ../x86/obj6.go
 		p.To.Sym = ctxt.LookupABI(ctxt.Flag_maymorestack, cursym.ABI())
-		jalToSym(ctxt, p, REG_X5)
+		jalToSym(ctxt, p, REG_X6)
 
 		// Restore LR and REGCTXT
 
@@ -952,7 +952,7 @@ func stacksplit(ctxt *obj.Link, p *obj.Prog, cursym *obj.LSym, newprog obj.ProgA
 	if to_more != nil {
 		to_more.To.SetTarget(p)
 	}
-	jalToSym(ctxt, p, REG_X5)
+	jalToSym(ctxt, p, REG_X6)
 
 	// The instructions which unspill regs should be preemptible.
 	p = ctxt.EndUnsafePoint(p, newprog, -1)
