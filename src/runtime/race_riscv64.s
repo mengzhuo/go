@@ -1,4 +1,4 @@
-// Copyright 2023 The Go Authors. All rights reserved.
+// Copyright 2025 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -25,7 +25,7 @@
 
 // func runtime·raceread(addr uintptr)
 // Called from instrumented code.
-TEXT	runtime·raceread<ABIInternal>(SB), NOSPLIT, $0-8
+TEXT	runtime·raceread<ABIInternal>(SB), NOSPLIT, $0-0
 	// void __tsan_read(ThreadState *thr, void *addr, void *pc);
 	MOV	$__tsan_read(SB), X5
 	MOV	X10, X11
@@ -33,22 +33,22 @@ TEXT	runtime·raceread<ABIInternal>(SB), NOSPLIT, $0-8
 	JMP	racecalladdr<>(SB)
 
 // func runtime·RaceRead(addr uintptr)
-TEXT	runtime·RaceRead(SB), NOSPLIT, $0-8
+TEXT	runtime·RaceRead<ABIInternal>(SB), NOSPLIT, $0-0
 	// This needs to be a tail call, because raceread reads caller pc.
 	JMP	runtime·raceread(SB)
 
 // func runtime·racereadpc(void *addr, void *callpc, void *pc)
-TEXT	runtime·racereadpc(SB), NOSPLIT, $0-24
+TEXT	runtime·racereadpc<ABIInternal>(SB), NOSPLIT, $0-0
 	// void __tsan_read_pc(ThreadState *thr, void *addr, void *callpc, void *pc);
 	MOV	$__tsan_read_pc(SB), X5
-	MOV	addr+0(FP), X11
-	MOV	callpc+8(FP), X12
-	MOV	pc+16(FP), X13
+	MOV	X12, X13
+	MOV	X11, X12
+	MOV	X10, X11
 	JMP	racecalladdr<>(SB)
 
 // func runtime·racewrite(addr uintptr)
 // Called from instrumented code.
-TEXT	runtime·racewrite<ABIInternal>(SB), NOSPLIT, $0-8
+TEXT	runtime·racewrite<ABIInternal>(SB), NOSPLIT, $0-0
 	// void __tsan_write(ThreadState *thr, void *addr, void *pc);
 	MOV	$__tsan_write(SB), X5
 	MOV	X10, X11
@@ -56,22 +56,22 @@ TEXT	runtime·racewrite<ABIInternal>(SB), NOSPLIT, $0-8
 	JMP	racecalladdr<>(SB)
 
 // func runtime·RaceWrite(addr uintptr)
-TEXT	runtime·RaceWrite(SB), NOSPLIT, $0-8
+TEXT	runtime·RaceWrite<ABIInternal>(SB), NOSPLIT, $0-0
 	// This needs to be a tail call, because racewrite reads caller pc.
 	JMP	runtime·racewrite(SB)
 
 // func runtime·racewritepc(void *addr, void *callpc, void *pc)
-TEXT	runtime·racewritepc(SB), NOSPLIT, $0-24
+TEXT	runtime·racewritepc<ABIInternal>(SB), NOSPLIT, $0-0
 	// void __tsan_write_pc(ThreadState *thr, void *addr, void *callpc, void *pc);
 	MOV	$__tsan_write_pc(SB), X5
-	MOV	addr+0(FP), X11
-	MOV	callpc+8(FP), X12
-	MOV	pc+16(FP), X13
+	MOV	X12, X13
+	MOV	X11, X12
+	MOV	X10, X11
 	JMP	racecalladdr<>(SB)
 
 // func runtime·racereadrange(addr, size uintptr)
 // Called from instrumented code.
-TEXT	runtime·racereadrange<ABIInternal>(SB), NOSPLIT, $0-16
+TEXT	runtime·racereadrange<ABIInternal>(SB), NOSPLIT, $0-0
 	// void __tsan_read_range(ThreadState *thr, void *addr, uintptr size, void *pc);
 	MOV	$__tsan_read_range(SB), X5
 	MOV	X11, X12
@@ -80,25 +80,26 @@ TEXT	runtime·racereadrange<ABIInternal>(SB), NOSPLIT, $0-16
 	JMP	racecalladdr<>(SB)
 
 // func runtime·RaceReadRange(addr, size uintptr)
-TEXT	runtime·RaceReadRange(SB), NOSPLIT, $0-16
+TEXT	runtime·RaceReadRange<ABIInternal>(SB), NOSPLIT, $0-0
 	// This needs to be a tail call, because racereadrange reads caller pc.
 	JMP	runtime·racereadrange(SB)
 
 // func runtime·racereadrangepc1(void *addr, uintptr sz, void *pc)
-TEXT	runtime·racereadrangepc1(SB), NOSPLIT, $0-24
+TEXT	runtime·racereadrangepc1<ABIInternal>(SB), NOSPLIT, $0-0
 	// void __tsan_read_range(ThreadState *thr, void *addr, uintptr size, void *pc);
 	MOV	$__tsan_read_range(SB), X5
-	MOV	addr+0(FP), X11
-	MOV	size+8(FP), X12
-	MOV	pc+16(FP), X13
+	MOV	X12, X13
+	MOV	X11, X12
+	MOV	X10, X11
+
 	// pc is an interceptor address, but TSan expects it to point to the
 	// middle of an interceptor (see LLVM's SCOPED_INTERCEPTOR_RAW).
-	ADD	$4, X13
+	ADD	$2, X13
 	JMP	racecalladdr<>(SB)
 
 // func runtime·racewriterange(addr, size uintptr)
 // Called from instrumented code.
-TEXT	runtime·racewriterange<ABIInternal>(SB), NOSPLIT, $0-16
+TEXT	runtime·racewriterange<ABIInternal>(SB), NOSPLIT, $0
 	// void __tsan_write_range(ThreadState *thr, void *addr, uintptr size, void *pc);
 	MOV	$__tsan_write_range(SB), X5
 	MOV	X11, X12
@@ -107,20 +108,20 @@ TEXT	runtime·racewriterange<ABIInternal>(SB), NOSPLIT, $0-16
 	JMP	racecalladdr<>(SB)
 
 // func runtime·RaceWriteRange(addr, size uintptr)
-TEXT	runtime·RaceWriteRange(SB), NOSPLIT, $0-16
+TEXT	runtime·RaceWriteRange<ABIInternal>(SB), NOSPLIT, $0
 	// This needs to be a tail call, because racewriterange reads caller pc.
 	JMP	runtime·racewriterange(SB)
 
 // func runtime·racewriterangepc1(void *addr, uintptr sz, void *pc)
-TEXT	runtime·racewriterangepc1(SB), NOSPLIT, $0-24
+TEXT	runtime·racewriterangepc1<ABIInternal>(SB), NOSPLIT, $0
 	// void __tsan_write_range(ThreadState *thr, void *addr, uintptr size, void *pc);
 	MOV	$__tsan_write_range(SB), X5
-	MOV	addr+0(FP), X11
-	MOV	size+8(FP), X12
-	MOV	pc+16(FP), X13
+	MOV	X12, X13
+	MOV	X11, X12
+	MOV	X10, X11
 	// pc is an interceptor address, but TSan expects it to point to the
 	// middle of an interceptor (see LLVM's SCOPED_INTERCEPTOR_RAW).
-	ADD	$4, X13
+	ADD	$2, X13
 	JMP	racecalladdr<>(SB)
 
 // If addr (X11) is out of range, do nothing. Otherwise, setup goroutine context and
@@ -143,16 +144,19 @@ ret:
 
 // func runtime·racefuncenter(pc uintptr)
 // Called from instrumented code.
-TEXT	runtime·racefuncenter<ABIInternal>(SB), NOSPLIT, $0-8
+TEXT	runtime·racefuncenter<ABIInternal>(SB), NOSPLIT, $0-0
+	MOV	$__tsan_func_enter(SB), X5
 	MOV	X10, X11
-	JMP	racefuncenter<>(SB)
+	MOV	g_racectx(g), X10
+	JMP	racecall<>(SB)
 
 // Common code for racefuncenter
-// R3 = caller's return address
+// X1 = caller's return address
 TEXT	racefuncenter<>(SB), NOSPLIT, $0-0
 	// void __tsan_func_enter(ThreadState *thr, void *pc);
 	MOV	$__tsan_func_enter(SB), X5
 	MOV	g_racectx(g), X10
+	MOV	X1, X11
 	JMP	racecall<>(SB)
 
 // func runtime·racefuncexit()
@@ -283,6 +287,56 @@ TEXT	sync∕atomic·AddUintptr(SB), NOSPLIT, $0-24
 	GO_ARGS
 	JMP	sync∕atomic·AddInt64(SB)
 
+// And
+TEXT	sync∕atomic·AndInt32(SB), NOSPLIT, $0-20
+	GO_ARGS
+	MOV	$__tsan_go_atomic32_fetch_and(SB), X5
+	CALL	racecallatomic<>(SB)
+	RET
+
+TEXT	sync∕atomic·AndInt64(SB), NOSPLIT, $0-24
+	GO_ARGS
+	MOV	$__tsan_go_atomic64_fetch_and(SB), X5
+	CALL	racecallatomic<>(SB)
+	RET
+
+TEXT	sync∕atomic·AndUint32(SB), NOSPLIT, $0-20
+	GO_ARGS
+	JMP	sync∕atomic·AndInt32(SB)
+
+TEXT	sync∕atomic·AndUint64(SB), NOSPLIT, $0-24
+	GO_ARGS
+	JMP	sync∕atomic·AndInt64(SB)
+
+TEXT	sync∕atomic·AndUintptr(SB), NOSPLIT, $0-24
+	GO_ARGS
+	JMP	sync∕atomic·AndInt64(SB)
+
+// Or
+TEXT	sync∕atomic·OrInt32(SB), NOSPLIT, $0-20
+	GO_ARGS
+	MOV	$__tsan_go_atomic32_fetch_or(SB), X5
+	CALL	racecallatomic<>(SB)
+	RET
+
+TEXT	sync∕atomic·OrInt64(SB), NOSPLIT, $0-24
+	GO_ARGS
+	MOV	$__tsan_go_atomic64_fetch_or(SB), X5
+	CALL	racecallatomic<>(SB)
+	RET
+
+TEXT	sync∕atomic·OrUint32(SB), NOSPLIT, $0-20
+	GO_ARGS
+	JMP	sync∕atomic·OrInt32(SB)
+
+TEXT	sync∕atomic·OrUint64(SB), NOSPLIT, $0-24
+	GO_ARGS
+	JMP	sync∕atomic·OrInt64(SB)
+
+TEXT	sync∕atomic·OrUintptr(SB), NOSPLIT, $0-24
+	GO_ARGS
+	JMP	sync∕atomic·OrInt64(SB)
+
 // CompareAndSwap
 
 TEXT	sync∕atomic·CompareAndSwapInt32(SB), NOSPLIT, $0-17
@@ -319,7 +373,7 @@ TEXT	racecallatomic<>(SB), NOSPLIT, $0
 	// X13 = addr of incoming arg list
 
 	// Trigger SIGSEGV early.
-	MOV	24(X2), X6	// 1st arg is addr. after two times CALL, get it at 24(X2)
+	MOV	16(X2), X6	// 1st arg is addr. after two times CALL, get it at 16(X2)
 	MOVB	(X6), X0	// segv here if addr is bad
 	// Check that addr is within [arenastart, arenaend) or within [racedatastart, racedataend).
 	MOV	runtime·racearenastart(SB), X7
@@ -334,7 +388,7 @@ racecallatomic_data:
 racecallatomic_ok:
 	// Addr is within the good range, call the atomic function.
 	MOV	g_racectx(g), X10	// goroutine context
-	MOV	8(X2), X11		// caller pc
+	MOV	16(X2), X11		// caller pc
 	MOV	X1, X12			// pc
 	ADD	$24, X2, X13
 	JMP	racecall<>(SB)		// does not return
@@ -342,16 +396,16 @@ racecallatomic_ignore:
 	// Addr is outside the good range.
 	// Call __tsan_go_ignore_sync_begin to ignore synchronization during the atomic op.
 	// An attempt to synchronize on the address would cause crash.
-	MOV	X1, X18			// save PC
-	MOV	X5, X19			// save target function
+	MOV	X1, X20			// save PC
+	MOV	X5, X21			// save target function
 	MOV	$__tsan_go_ignore_sync_begin(SB), X5
 	MOV	g_racectx(g), X10	// goroutine context
 	CALL	racecall<>(SB)
-	MOV	X19, X5			// restore the target function
+	MOV	X21, X5			// restore the target function
 	// Call the atomic function.
 	MOV	g_racectx(g), X10	// goroutine context
-	MOV	8(X2), X11		// caller pc
-	MOV	X18, X12		// pc
+	MOV	16(X2), X11		// caller pc
+	MOV	X20, X12		// pc
 	ADD	$24, X2, X13		// arguments
 	CALL	racecall<>(SB)
 	// Call __tsan_go_ignore_sync_end.
@@ -424,18 +478,18 @@ rest:
 	MOV	X25, (12*8)(X2)
 	MOV	X26, (13*8)(X2)
 	MOV	g, (14*8)(X2)
-	MOVF	F8, (15*8)(X2)
-	MOVF	F9, (16*8)(X2)
-	MOVF	F18, (17*8)(X2)
-	MOVF	F19, (18*8)(X2)
-	MOVF	F20, (19*8)(X2)
-	MOVF	F21, (20*8)(X2)
-	MOVF	F22, (21*8)(X2)
-	MOVF	F23, (22*8)(X2)
-	MOVF	F24, (23*8)(X2)
-	MOVF	F25, (24*8)(X2)
-	MOVF	F26, (25*8)(X2)
-	MOVF	F27, (26*8)(X2)
+	MOVD	F8, (15*8)(X2)
+	MOVD	F9, (16*8)(X2)
+	MOVD	F18, (17*8)(X2)
+	MOVD	F19, (18*8)(X2)
+	MOVD	F20, (19*8)(X2)
+	MOVD	F21, (20*8)(X2)
+	MOVD	F22, (21*8)(X2)
+	MOVD	F23, (22*8)(X2)
+	MOVD	F24, (23*8)(X2)
+	MOVD	F25, (24*8)(X2)
+	MOVD	F26, (25*8)(X2)
+	MOVD	F27, (26*8)(X2)
 
 	// Set g = g0.
 	CALL	runtime·load_g(SB)
@@ -466,18 +520,18 @@ ret:
 	MOV	(12*8)(X2), X25
 	MOV	(13*8)(X2), X26
 	MOV	(14*8)(X2), g
-	MOVF	(15*8)(X2), F8
-	MOVF	(16*8)(X2), F9
-	MOVF	(17*8)(X2), F18
-	MOVF	(18*8)(X2), F19
-	MOVF	(19*8)(X2), F20
-	MOVF	(20*8)(X2), F21
-	MOVF	(21*8)(X2), F22
-	MOVF	(22*8)(X2), F23
-	MOVF	(23*8)(X2), F24
-	MOVF	(24*8)(X2), F25
-	MOVF	(25*8)(X2), F26
-	MOVF	(26*8)(X2), F27
+	MOVD	(15*8)(X2), F8
+	MOVD	(16*8)(X2), F9
+	MOVD	(17*8)(X2), F18
+	MOVD	(18*8)(X2), F19
+	MOVD	(19*8)(X2), F20
+	MOVD	(20*8)(X2), F21
+	MOVD	(21*8)(X2), F22
+	MOVD	(22*8)(X2), F23
+	MOVD	(23*8)(X2), F24
+	MOVD	(24*8)(X2), F25
+	MOVD	(25*8)(X2), F26
+	MOVD	(26*8)(X2), F27
 
 	ADD	$(27*8), X2
 	JMP	(X1)
